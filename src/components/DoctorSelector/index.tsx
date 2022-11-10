@@ -15,7 +15,7 @@ const DoctorSelector: FC<{
         Doctors
       </Heading>
       {value && <Text>Selected: {value.name}</Text>}
-      <Divider m={1} orientation='horizontal' />
+      <Divider my={1} orientation='horizontal' />
       {!doctors || doctors.length === 0 ? (
         <Text>No doctors</Text>
       ) : (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { Heading, Box, Text, useDisclosure, useToast } from '@chakra-ui/react';
+import { Heading, Box, Text, useDisclosure, useToast, Progress } from '@chakra-ui/react';
 import { addDays, add } from 'date-fns';
 
 import DoctorSelector from '@/components/DoctorSelector';
@@ -9,6 +9,7 @@ import { Doctor, Slot, useBookAppointmentMutation, useDoctorsQuery, useSlotsQuer
 import { SlotWithKey } from '@/types/domain';
 import BookForm from '@/components/BookForm';
 import { FieldValues } from 'react-hook-form';
+import Loader from '@/components/Loader';
 
 const startDate = new Date();
 const MAX_DAYS = 30;
@@ -29,12 +30,12 @@ const Appointments = () => {
   const [error, setError] = useState<string>();
   const [slots, setSlots] = useState<SlotWithKey[]>([]);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor>();
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<SlotWithKey>();
   const minimumStartDate = slots?.[0]?.start;
   const maximumStartDate = minimumStartDate && addDays(minimumStartDate, MAX_DAYS);
-  const [bookAppointment] = useBookAppointmentMutation();
-  const slotsResp = useSlotsQuery({
+  const [bookAppointment, { loading: bookLoading }] = useBookAppointmentMutation();
+  const { data: slotsResp, loading: slotsLoading } = useSlotsQuery({
     variables: {
       from: startDate,
       to: add(startDate, { days: MAX_DAYS }),
@@ -42,8 +43,12 @@ const Appointments = () => {
   });
 
   useEffect(() => {
+    setIsLoading(loading || slotsLoading || bookLoading);
+  }, [loading, slotsLoading, bookLoading]);
+
+  useEffect(() => {
     if (selectedDoctor) {
-      const slotsData = slotsResp?.data?.slots.filter((slot) => slot.doctorId === selectedDoctor.id);
+      const slotsData = slotsResp?.slots.filter((slot) => slot.doctorId === selectedDoctor.id);
       if (!slotsData?.length) {
         toast({
           title: 'No slots available',
@@ -101,6 +106,9 @@ const Appointments = () => {
 
   return (
     <Box>
+      {isLoading && (
+        <Loader />
+      )}
       <Heading>Appointments</Heading>
       {error && (
         <Box>
