@@ -1,0 +1,6 @@
+mutation AddDoctorAvail($dayOfWeek: Float!, $startTimeUtc: String!, $endTimeUtc: String!, $doctorId: Float!) {
+  addDoctorAvail(dayOfWeek: $dayOfWeek, startTimeUtc: $startTimeUtc, endTimeUtc: $endTimeUtc, doctorId: $doctorId) {
+    id
+    name
+  }
+}
